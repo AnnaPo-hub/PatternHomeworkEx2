@@ -22,6 +22,8 @@ dependencies {
     testImplementation 'com.codeborne:selenide:5.3.1'
     implementation 'junit:junit:4.12'
     testImplementation 'com.github.javafaker:javafaker:1.0.1'
+    testImplementation 'io.rest-assured:rest-assured:4.3.0'
+    testImplementation 'com.google.code.gson:gson:2.8.6'
 }
 
 test {
