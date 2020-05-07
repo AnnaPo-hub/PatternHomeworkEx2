@@ -16,7 +16,7 @@ public class PersonGenerator {
             Faker faker = new Faker(new Locale("en"));
             double random = Math.random();
             Status status;
-            if (random>=1){
+            if (random>=0.5){
                status=Status.BLOCKED;
             }  else {
                 status = Status.ACTIVE;
