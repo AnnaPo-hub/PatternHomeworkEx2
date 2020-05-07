@@ -42,9 +42,9 @@ public class AuthTest {
         $("input[name =\"login\"]").setValue(person.getLogin());
         $("input[name=\"password\"]").setValue(person.getPassword());
         $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        if (person.getStatus().equals(Status.ACTIVE)) {
+        if (person.getStatus().equals(Status.active)) {
             $(withText("Личный кабинет")).waitUntil(Condition.visible, 5000);
-        } else if ((person.getStatus().equals(Status.BLOCKED))) {
+        } else if ((person.getStatus().equals(Status.blocked))) {
             $("[data-test-id =\"error-notification\"]").waitUntil(Condition.visible, 5000);
         }
     }
