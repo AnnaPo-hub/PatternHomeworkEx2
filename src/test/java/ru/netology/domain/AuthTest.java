@@ -1,81 +1,51 @@
 package ru.netology.domain;
 
-import com.codeborne.selenide.Condition;
-import lombok.val;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static com.codeborne.selenide.Selectors.withText;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import java.sql.SQLException;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 public class AuthTest {
-    @Test
-    void shouldRequestWithValidLoginInfo() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateValidActiveUser();
-        $("input[name =\"login\"]").setValue(person.getLogin());
-        $("input[name=\"password\"]").setValue(person.getPassword());
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Личный кабинет")).waitUntil(Condition.visible, 5000);
+    private static RequestSpecification requestSpec = new RequestSpecBuilder()
+            .setBaseUri("http://localhost")
+            .setPort(9999)
+            .setAccept(ContentType.JSON)
+            .setContentType(ContentType.JSON)
+            .log(LogDetail.ALL)
+            .build();
+
+    @BeforeAll
+    static void setUpLogin() {
+        given() // "дано"java -jar app-ibank.jar -P:profile=test
+                .spec(requestSpec) // указываем, какую спецификацию используем
+                .body(DataHelper.getAuthInfo()) // передаём в теле объект, который будет преобразован в JSON
+                .when() // "когда"
+                .post("/api/auth") // на какой путь, относительно BaseUri отправляем запрос
+                .then() // "тогда ожидаем"
+                .statusCode(200); // код 200 OK
     }
 
     @Test
-    void shouldNotRequestWithValidLoginInfoButStatusBlocked() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateValidButBlockedUser();
-        $("input[name =\"login\"]").setValue(person.getLogin());
-        $("input[name=\"password\"]").setValue(person.getPassword());
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
+     void checkStatus () throws SQLException {
+     String status =  given() // "дано"java -jar app-ibank.jar -P:profile=test
+                .spec(requestSpec) // указываем, какую спецификацию используем
+                .body(DataHelper.getVerificationCode()) // передаём в теле объект, который будет преобразован в JSON
+                .when() // "когда"
+                .post("/api/auth/verification") // на какой путь, относительно BaseUri отправляем запрос
+                .then() // "тогда ожидаем"
+                     .statusCode(200)
+                .extract()
+                    .path("status");
+        System.out.println(status);
+        assertThat(status, equalTo("ok"));
     }
 
-    @Test
-    void shouldNotRequestWithoutPassword() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateValidActiveUser();
-        $("input[name =\"login\"]").setValue(person.getLogin());
-        $("input[name=\"password\"]").setValue(" ");
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Поле обязательно для заполнения")).waitUntil(Condition.visible, 5000);
-    }
-
-    @Test
-    void shouldNotRequestWithoutLogin() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateValidActiveUser();
-        $("input[name =\"login\"]").setValue(" ");
-        $("input[name=\"password\"]").setValue(person.getPassword());
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Поле обязательно для заполнения")).waitUntil(Condition.visible, 5000);
-    }
-
-    @Test
-    void shouldNotRequestWithValidPasswordButNotValidLogin() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateValidActiveUser();
-        $("input[name =\"login\"]").setValue("Anna");
-        $("input[name=\"password\"]").setValue(person.getPassword());
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
-    }
-
-    @Test
-    void shouldNotRequestWithValidLoginButNotValidPassword() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateValidActiveUser();
-        $("input[name =\"login\"]").setValue(person.getLogin());
-        $("input[name=\"password\"]").setValue("person");
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
-    }
-
-    @Test
-    void shouldNotRequestWithValidLoginButWithoutRegistration() {
-        open("http://localhost:9999");
-        val person = PersonGenerator.Registration.generateUserWithoutRegistration();
-        $("input[name =\"login\"]").setValue(person.getLogin());
-        $("input[name=\"password\"]").setValue(person.getPassword());
-        $("button[type=\"button\"][data-test-id=\"action-login\"]").click();
-        $(withText("Ошибка")).waitUntil(Condition.visible, 5000);
-    }
 }
