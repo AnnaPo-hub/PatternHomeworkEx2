@@ -24,7 +24,7 @@ public class AuthTest {
 
     @BeforeAll
     static void setUpLogin() {
-        given() // "дано"java -jar app-ibank.jar -P:profile=test
+        given() // -P:profile=test
                 .spec(requestSpec) // указываем, какую спецификацию используем
                 .body(DataHelper.getAuthInfo()) // передаём в теле объект, который будет преобразован в JSON
                 .when() // "когда"
@@ -35,12 +35,12 @@ public class AuthTest {
 
     @Test
      void checkStatus () throws SQLException {
-     String status =  given() // "дано"java -jar app-ibank.jar -P:profile=test
-                .spec(requestSpec) // указываем, какую спецификацию используем
-                .body(DataHelper.getVerificationCode()) // передаём в теле объект, который будет преобразован в JSON
-                .when() // "когда"
-                .post("/api/auth/verification") // на какой путь, относительно BaseUri отправляем запрос
-                .then() // "тогда ожидаем"
+     String status =  given()
+                .spec(requestSpec)
+                .body(DataHelper.getVerificationCode())
+                .when()
+                .post("/api/auth/verification")
+                .then()
                      .statusCode(200)
                 .extract()
                     .path("status");
