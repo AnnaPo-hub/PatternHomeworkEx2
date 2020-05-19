@@ -37,43 +37,44 @@ public class AuthTest {
 
     @BeforeAll
     static void checkStatusAndExtractToken() throws SQLException {
-     token =  given()
+        token = given()
                 .spec(requestSpec)
                 .body(DataHelper.getVerificationCode())
                 .when()
                 .post("/api/auth/verification")
                 .then()
-                     .statusCode(200)
+                .statusCode(200)
                 .extract()
-                    .path("token");
+                .path("token");
+        assertThat(token, notNullValue());
 
     }
 
     @Test
-    void viewCards (){
-    Response response = given()
-               .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+    void transfer() throws SQLException {
+        Response response = given()
+                .headers("Authorization", "Bearer " + token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .spec(requestSpec)
+                .body(DataHelper.getTransferAmountModel())
+                .when()
+                .post("/api/transfer")
+                .then().log().all()
+                .statusCode(200)
+                .extract()
+                .response();
+        System.out.println(response);
+        final String transaction = SqlUtils.findTransaction();
+        System.out.println(transaction);
+        assertThat(transaction, notNullValue());
+    }
+
+    @Test
+    void viewCards() {
+        Response response = given()
+                .headers("Authorization", "Bearer " + token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
                 .spec(requestSpec)
                 .when()
                 .get("/api/cards")
-                .then().log().all()
-             .statusCode(200)
-               .extract()
-               .response();
-        System.out.println(response);
-        assertThat(response, notNullValue());
-    }
-
-    @Test
-    void transfer (){
-       Response response =  given()
-                .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-                .spec(requestSpec)
-                .body("\"from\": \"5559 0000 0000 0002\",\n" +
-                        "  \"to\": \"5559 0000 0000 0001\",\n" +
-                        "  \"amount\": \"5000\"")
-                .when()
-                .post("/api/transfer")
                 .then().log().all()
                 .statusCode(200)
                 .extract()
@@ -85,5 +86,4 @@ public class AuthTest {
 //    static void close() throws SQLException {
 //        SqlUtils.cleanDb();
 //    }
-
 }

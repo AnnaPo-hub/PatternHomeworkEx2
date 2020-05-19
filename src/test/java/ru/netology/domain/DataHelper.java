@@ -30,18 +30,13 @@ public class DataHelper {
     }
 
     @Value
-    public static class CardInfo {
-        private String cardNumber;
-        private String cardBalance;
+    public static class TransferAmountModel {
+        private String from;
+        private String to;
+        private String amount;
     }
 
-    public static CardInfo getFirstCardInformation() {
-        return new CardInfo("5559000000000001", "10000");
+    public static TransferAmountModel getTransferAmountModel() {
+        return new TransferAmountModel("5559000000000001", "5559000000000002", "5000");
     }
-
-    public static CardInfo getSecondCardInformation() {
-        return new CardInfo("5559000000000002", "10000");
-    }
-
-
 }

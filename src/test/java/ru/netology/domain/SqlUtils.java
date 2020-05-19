@@ -41,20 +41,21 @@ public class SqlUtils {
         return code;
     }
 
-    public String getStatusFromDb() throws SQLException {
-        String statusSQL = "SELECT status FROM users WHERE login = ?;";
-        String status = null;
+    public static String findTransaction() throws SQLException {
+        String transactionSQL = "SELECT amount_in_kopecks FROM card_transactions WHERE target = ?;";
+        String transaction= null;
         try (val conn = getConnection();
-             val statusStmt = conn.prepareStatement(statusSQL);) {
-            statusStmt.setString(1, "vasya");
+             val statusStmt = conn.prepareStatement(transactionSQL);) {
+            statusStmt.setString(1, "5559000000000002");
             try (val rs = statusStmt.executeQuery()) {
                 if (rs.next()) {
-                    status = rs.getString("status");
+                    transaction = rs.getString("amount_in_kopecks");
                 }
             }
         }
-        return status;
+        return transaction;
     }
+
 
     public static void cleanDb() throws SQLException {
         String deleteCards = "DELETE FROM cards; ";
