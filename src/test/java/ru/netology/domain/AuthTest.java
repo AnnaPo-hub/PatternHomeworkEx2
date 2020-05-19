@@ -4,16 +4,16 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
 public class AuthTest {
+    private static String token;
     private static RequestSpecification requestSpec = new RequestSpecBuilder()
             .setBaseUri("http://localhost")
             .setPort(9999)
@@ -33,9 +33,9 @@ public class AuthTest {
                 .statusCode(200); // код 200 OK
     }
 
-    @Test
-     void checkStatus () throws SQLException {
-     String status =  given()
+    @BeforeAll
+    static void checkStatusAndExtractToken() throws SQLException {
+     token =  given()
                 .spec(requestSpec)
                 .body(DataHelper.getVerificationCode())
                 .when()
@@ -43,9 +43,42 @@ public class AuthTest {
                 .then()
                      .statusCode(200)
                 .extract()
-                    .path("status");
-        System.out.println(status);
-        assertThat(status, equalTo("ok"));
+                    .path("token");
+        System.out.println(token);
+    }
+
+    @Test
+    void viewCards (){
+     given()
+               .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .spec(requestSpec)
+                .when()
+                .get("/api/cards")
+                .then()
+             .statusCode(200)
+               .extract()
+               .response();
+    }
+
+//    @Test
+//    void transfer (){
+//        given()
+//                .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+//                .spec(requestSpec)
+//                .body("\"from\": \"5559 0000 0000 0002\",\n" +
+//                        "  \"to\": \"5559 0000 0000 0008\",\n" +
+//                        "  \"amount\": 5000")
+//                .when()
+//                .post("/api/transfer")
+//                .then()
+//                .statusCode(200)
+//                .extract()
+//                .response();
+//    }
+
+    @AfterAll
+    static void close() throws SQLException {
+        SqlUtils.cleanDb();
     }
 
 }
