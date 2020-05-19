@@ -3,14 +3,16 @@ package ru.netology.domain;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class AuthTest {
     private static String token;
@@ -44,41 +46,44 @@ public class AuthTest {
                      .statusCode(200)
                 .extract()
                     .path("token");
-        System.out.println(token);
+
     }
 
     @Test
     void viewCards (){
-     given()
+    Response response = given()
                .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
                 .spec(requestSpec)
                 .when()
                 .get("/api/cards")
-                .then()
+                .then().log().all()
              .statusCode(200)
                .extract()
                .response();
+        System.out.println(response);
+        assertThat(response, notNullValue());
     }
 
-//    @Test
-//    void transfer (){
-//        given()
-//                .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-//                .spec(requestSpec)
-//                .body("\"from\": \"5559 0000 0000 0002\",\n" +
-//                        "  \"to\": \"5559 0000 0000 0008\",\n" +
-//                        "  \"amount\": 5000")
-//                .when()
-//                .post("/api/transfer")
-//                .then()
-//                .statusCode(200)
-//                .extract()
-//                .response();
+    @Test
+    void transfer (){
+       Response response =  given()
+                .headers("Authorization", "Bearer "+token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .spec(requestSpec)
+                .body("\"from\": \"5559 0000 0000 0002\",\n" +
+                        "  \"to\": \"5559 0000 0000 0001\",\n" +
+                        "  \"amount\": \"5000\"")
+                .when()
+                .post("/api/transfer")
+                .then().log().all()
+                .statusCode(200)
+                .extract()
+                .response();
+        System.out.println(response);
+    }
+
+//    @AfterAll
+//    static void close() throws SQLException {
+//        SqlUtils.cleanDb();
 //    }
-
-    @AfterAll
-    static void close() throws SQLException {
-        SqlUtils.cleanDb();
-    }
 
 }
