@@ -1,1 +1,13 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ntnt8kwlf5dq9vdq?svg=true)](https://ci.appveyor.com/project/AnnaPo-hub/patternhomeworkex2)
+### Спасибо, что Вы проверяете PatternHomeworkEx2! 
+Программа написана в рамках выполнения [задания 2  к занятию «3.2. SQL»](https://github.com/netology-code/aqa-homeworks/tree/aqa4/sql) 
+
+Программа предназначена для тестирования функции перевода денег с карты на карту через API. 
+
+Убедитесь, что у Вас установлен Docker, версии не ниже 3.8. 
+
+#### Инструкции по установке
+1. Скачайте PatternHomeworkEx2; 
+1. Разверните базу,  используя команду  `docker-compose up -d`
+1. Запустите приложение с помощью команды `java -jar ./artifacts/app-deadline.jar`
+1. Tесты готовы к запуску. Обратите внимание, перед повторным запуском автотестов приложение должно быть перезапущено. 
+
