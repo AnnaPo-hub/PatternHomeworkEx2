@@ -27,7 +27,7 @@ public class SqlUtils {
             }
         }
         String code = null;
-        val authCode = "SELECT code FROM auth_codes WHERE user_id = ?;";
+        val authCode = "SELECT code FROM auth_codes WHERE user_id = ? order by created desc limit 1;";
         try (val conn = getConnection();
              val codeStmt = conn.prepareStatement(authCode);
         ) {

@@ -1,11 +1,10 @@
 package ru.netology.domain.test;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import ru.netology.domain.sqlUtils.SqlUtils;
 import ru.netology.domain.data.DataHelper;
 import ru.netology.domain.restApi.RestApiHelper;
+import ru.netology.domain.sqlUtils.SqlUtils;
 
 import java.sql.SQLException;
 
@@ -41,8 +40,8 @@ public class AuthTest {
         RestApiHelper.viewCards();
     }
 
-    @AfterAll
-    static void close() throws SQLException {
-        SqlUtils.cleanDb();
-    }
+//    @AfterAll
+//    static void close() throws SQLException {
+//        SqlUtils.cleanDb();
+//    }
 }
