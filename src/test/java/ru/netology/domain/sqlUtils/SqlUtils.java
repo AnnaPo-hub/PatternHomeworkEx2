@@ -1,6 +1,7 @@
 package ru.netology.domain.sqlUtils;
 
 import lombok.val;
+import ru.netology.domain.test.AuthTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,13 +14,13 @@ public class SqlUtils {
         return connection;
     }
 
-    public static String getVerificationCode() throws SQLException {
+    public static AuthTest.VerificationData getVerificationCode(String login) throws SQLException {
         String userId = null;
         val dataSQL = "SELECT id FROM users WHERE login = ?;";
         try (val conn = getConnection();
              val idStmt = conn.prepareStatement(dataSQL);
         ) {
-            idStmt.setString(1, "vasya");
+            idStmt.setString(1, login);
             try (val rs = idStmt.executeQuery()) {
                 if (rs.next()) {
                     userId = rs.getString("id");
@@ -38,15 +39,15 @@ public class SqlUtils {
                 }
             }
         }
-        return code;
+        return new AuthTest.VerificationData(login, code);
     }
 
-    public static String findTransaction() throws SQLException {
+    public static String findTransaction(String cardNumberTo) throws SQLException {
         String transactionSQL = "SELECT amount_in_kopecks FROM card_transactions WHERE target = ?;";
         String transaction = null;
         try (val conn = getConnection();
              val statusStmt = conn.prepareStatement(transactionSQL);) {
-            statusStmt.setString(1, "5559 0000 0000 0002");
+            statusStmt.setString(1, cardNumberTo);
             try (val rs = statusStmt.executeQuery()) {
                 if (rs.next()) {
                     transaction = rs.getString("amount_in_kopecks");

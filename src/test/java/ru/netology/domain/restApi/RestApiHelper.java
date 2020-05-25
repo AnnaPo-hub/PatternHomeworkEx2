@@ -4,9 +4,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import ru.netology.domain.data.DataHelper;
-
-import java.sql.SQLException;
+import ru.netology.domain.test.AuthTest;
 
 import static io.restassured.RestAssured.given;
 
@@ -19,22 +17,21 @@ public class RestApiHelper {
             .setContentType(ContentType.JSON)
             .log(LogDetail.ALL)
             .build();
-    private static String token;
 
-    public static void login() {
+    public static void login(AuthTest.AuthInfo loginInfo) {
         given() // -P:profile=test
                 .spec(requestSpec) // указываем, какую спецификацию используем
-                .body(DataHelper.getAuthInfo()) // передаём в теле объект, который будет преобразован в JSON
+                .body(loginInfo) // передаём в теле объект, который будет преобразован в JSON
                 .when() // "когда"
                 .post("/api/auth") // на какой путь, относительно BaseUri отправляем запрос
                 .then() // "тогда ожидаем"
                 .statusCode(200); // код 200 OK
     }
 
-    public static String checkStatusAndExtractToken() throws SQLException {
-        token = given()
+    public static String checkStatusAndExtractToken(AuthTest.VerificationData verificationData) {
+        String token = given()
                 .spec(requestSpec)
-                .body(DataHelper.getVerificationCode())
+                .body(verificationData)
                 .when()
                 .post("/api/auth/verification")
                 .then()
@@ -44,11 +41,11 @@ public class RestApiHelper {
         return token;
     }
 
-    public static void transfer() throws SQLException {
+    public static void transfer(String token, AuthTest.TransferAmountModel model) {
         given()
                 .headers("Authorization", "Bearer " + token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
                 .spec(requestSpec)
-                .body(DataHelper.getTransferAmountModel())
+                .body(model)
                 .when()
                 .post("/api/transfer")
                 .then().log().all()
@@ -57,7 +54,7 @@ public class RestApiHelper {
                 .response();
     }
 
-    public static void viewCards() {
+    public static void viewCards(String token) {
         given()
                 .headers("Authorization", "Bearer " + token, "Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
                 .spec(requestSpec)
